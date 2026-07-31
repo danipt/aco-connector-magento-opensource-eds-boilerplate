@@ -1,0 +1,24 @@
+{
+  "public": {
+    "default": {
+      "commerce-endpoint": "https://eu1.api.commerce.adobe.com/GTrjmqHjaPNCGujUzQWdb7/graphql",
+      "adobe-commerce-optimizer": true,
+      "headers": {
+        "cs": {
+          "ac-view-id": "d31322a2-1493-4da6-86e3-c611b1382fc7",
+          "ac-price-book-id": "base-usd-general"
+        }
+      },
+      "analytics": {
+        "environment-id": "GTrjmqHjaPNCGujUzQWdb7",
+        "environment": "Testing",
+        "store-url": "https://main--aco-connector-magento-opensource-eds-boilerplate--danipt.aem.live/",
+        "base-currency-code": "USD",
+        "store-view-currency-code": "USD",
+        "storefront-template": "Other",
+        "view-id": "d31322a2-1493-4da6-86e3-c611b1382fc7",
+        "locale": "en-US"
+      }
+    }
+  }
+}
