@@ -58,19 +58,6 @@ function isProductPrerendered() {
   }
 }
 
-// Function to update the Add to Cart button text
-function updateAddToCartButtonText(addToCartInstance, inCart, labels) {
-  const buttonText = inCart
-    ? labels.Global?.UpdateProductInCart
-    : labels.Global?.AddProductToCart;
-  if (addToCartInstance) {
-    addToCartInstance.setProps((prev) => ({
-      ...prev,
-      children: buttonText,
-    }));
-  }
-}
-
 /**
  * Formats numeric attribute values for display (e.g., "10.000000" → "10").
  * Non-numeric values are returned as-is.
@@ -88,12 +75,7 @@ export default async function decorate(block) {
 
   const labels = await fetchPlaceholders();
 
-  // Read itemUid from URL
   const urlParams = new URLSearchParams(window.location.search);
-  const itemUidFromUrl = urlParams.get('itemUid');
-
-  // State to track if we are in update mode
-  let isUpdateMode = false;
 
   // State to track if the current product/variant is out of stock
   let isOutOfStock = false;
@@ -259,9 +241,7 @@ export default async function decorate(block) {
     children: labels.Global?.AddProductToCart,
     icon: h(Icon, { source: 'Cart' }),
     onClick: async () => {
-      const buttonActionText = isUpdateMode
-        ? labels.Global?.UpdatingInCart
-        : labels.Global?.AddingToCart;
+      const buttonActionText = labels.Global?.AddingToCart;
       try {
         addToCart.setProps((prev) => ({
           ...prev,
@@ -274,39 +254,11 @@ export default async function decorate(block) {
         const values = pdpApi.getProductConfigurationValues();
         const valid = pdpApi.isProductConfigurationValid();
 
-        // add or update the product in the cart
         if (valid) {
-          if (isUpdateMode) {
-            // --- Update existing item ---
-            const { updateProductsFromCart } = await import(
-              '@dropins/storefront-cart/api.js'
-            );
-
-            await updateProductsFromCart([{ ...values, uid: itemUidFromUrl }]);
-
-            // --- START REDIRECT ON UPDATE ---
-            const updatedSku = values?.sku;
-            if (updatedSku) {
-              const cartRedirectUrl = new URL(
-                rootLink('/cart'),
-                window.location.origin,
-              );
-              cartRedirectUrl.searchParams.set('itemUid', itemUidFromUrl);
-              window.location.href = cartRedirectUrl.toString();
-            } else {
-              // Fallback if SKU is somehow missing (shouldn't happen in normal flow)
-              console.warn(
-                'Could not retrieve SKU for updated item. Redirecting to cart without parameter.',
-              );
-              window.location.href = rootLink('/cart');
-            }
-            return;
-          }
-          // --- Add new item ---
-          const { addProductsToCart } = await import(
-            '@dropins/storefront-cart/api.js'
+          const { addToCart: addToConnectorCart } = await import(
+            '../../scripts/connector-cart.js'
           );
-          await addProductsToCart([{ ...values }]);
+          await addToConnectorCart(values.sku, values.quantity);
         }
 
         // reset any previous alerts if successful
@@ -330,11 +282,9 @@ export default async function decorate(block) {
           block: 'center',
         });
       } finally {
-        // Reset button text using the helper function which respects the current mode
-        updateAddToCartButtonText(addToCart, isUpdateMode, labels);
-        // Re-enable button, unless the current variant is out of stock
         addToCart.setProps((prev) => ({
           ...prev,
+          children: labels.Global?.AddProductToCart,
           disabled: isOutOfStock,
         }));
         $addToCartStatus.textContent = '';
@@ -392,25 +342,6 @@ export default async function decorate(block) {
       });
     }, 0);
   });
-
-  // --- Add new event listener for cart/data ---
-  events.on(
-    'cart/data',
-    (cartData) => {
-      let itemIsInCart = false;
-      if (itemUidFromUrl && cartData?.items) {
-        itemIsInCart = cartData.items.some(
-          (item) => item.uid === itemUidFromUrl,
-        );
-      }
-      // Set the update mode state
-      isUpdateMode = itemIsInCart;
-
-      // Update button text based on whether the item is in the cart
-      updateAddToCartButtonText(addToCart, itemIsInCart, labels);
-    },
-    { eager: true },
-  );
 
   // Set JSON-LD and Meta Tags
   events.on('aem/lcp', () => {

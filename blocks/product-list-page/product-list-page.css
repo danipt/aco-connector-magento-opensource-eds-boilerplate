@@ -121,3 +121,12 @@
         justify-content: flex-end;
     }
 }
+
+/* homepage "hot sellers" variant: curated grid, no search chrome */
+.block.product-list-page.hot-sellers .search__result-info,
+.block.product-list-page.hot-sellers .search__view-facets,
+.block.product-list-page.hot-sellers .search__facets,
+.block.product-list-page.hot-sellers .search__product-sort,
+.block.product-list-page.hot-sellers .search__pagination {
+    display: none;
+}

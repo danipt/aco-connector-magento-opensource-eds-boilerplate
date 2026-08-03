@@ -169,31 +169,60 @@ export default async function decorate(block) {
     document.body.insertAdjacentElement('afterbegin', sellerAssistedBuyingBanner);
   }
 
-  // load nav as fragment
-  const navMeta = getMetadata('nav');
-  const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/nav';
-  const fragment = await loadFragment(navPath);
+  // Static top utility bar (welcome message, sign in / create account, currency).
+  // TODO: replace with authored/dynamic content once available.
+  const utilityBar = document.createRange().createContextualFragment(`
+    <div class="header-utility-bar">
+      <div class="header-utility-bar__message">Default welcome msg!</div>
+      <div class="header-utility-bar__links">
+        <a href="${rootLink('/customer/login')}">Sign In</a>
+        <span>or</span>
+        <a href="${rootLink('/customer/create')}">Create an Account</a>
+        <span class="header-utility-bar__currency">USD - US Dollar</span>
+      </div>
+    </div>
+  `);
+
+  // Static main navigation sections (categories). TODO: replace with authored
+  // nav content or ACO category data once available.
+  const staticNavItems = [
+    { label: "What's New", href: '/what-is-new' },
+    { label: 'Women', href: '/women' },
+    { label: 'Men', href: '/men' },
+    { label: 'Gear', href: '/gear' },
+    { label: 'Training', href: '/training' },
+    { label: 'Sale', href: '/sale' },
+  ];
 
   // decorate nav DOM
   block.textContent = '';
   const nav = document.createElement('nav');
   nav.id = 'nav';
-  while (fragment.firstElementChild) nav.append(fragment.firstElementChild);
 
-  const classes = ['brand', 'sections', 'tools'];
-  classes.forEach((c, i) => {
-    const section = nav.children[i];
-    if (section) section.classList.add(`nav-${c}`);
-  });
+  const navBrand = document.createElement('div');
+  navBrand.className = 'nav-brand';
+  navBrand.innerHTML = `<a href="${rootLink('/')}">AEM Commerce</a>`;
 
-  const navBrand = nav.querySelector('.nav-brand');
+  const navSections = document.createElement('div');
+  navSections.className = 'nav-sections';
+  navSections.innerHTML = `
+    <div class="default-content-wrapper">
+      <ul>
+        ${staticNavItems.map((item) => `<li><a href="${rootLink(item.href)}">${item.label}</a></li>`).join('')}
+      </ul>
+    </div>
+  `;
+
+  const navToolsInit = document.createElement('div');
+  navToolsInit.className = 'nav-tools';
+
+  nav.append(navBrand, navSections, navToolsInit);
   const brandLink = navBrand.querySelector('.button');
   if (brandLink) {
     brandLink.className = '';
     brandLink.closest('.button-container').className = '';
   }
 
-  const navSections = nav.querySelector('.nav-sections');
   if (navSections) {
     navSections
       .querySelectorAll(':scope .default-content-wrapper > ul > li')
@@ -528,7 +557,7 @@ export default async function decorate(block) {
   const navWrapper = document.createElement('div');
   navWrapper.className = 'nav-wrapper';
   navWrapper.append(nav);
-  block.append(navWrapper);
+  block.append(utilityBar, navWrapper);
 
   navWrapper.addEventListener('mouseout', (e) => {
     if (isDesktop.matches && !nav.contains(e.relatedTarget)) {

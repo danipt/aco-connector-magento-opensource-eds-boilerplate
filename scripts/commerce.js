@@ -44,6 +44,10 @@ export const CORE_FETCH_GRAPHQL = new FetchGraphQL();
 // Catalog Service Fetch GraphQL Instance
 export const CS_FETCH_GRAPHQL = new FetchGraphQL();
 
+// Connector Mesh Fetch GraphQL Instance (cart operations backed by the
+// ACO connector's runtime actions, exposed as GraphQL through the API Mesh)
+export const CONNECTOR_FETCH_GRAPHQL = new FetchGraphQL();
+
 /**
  * Constants
  */
@@ -331,6 +335,9 @@ export async function initializeCommerce() {
   // Set Fetch GraphQL (Catalog Service)
   CS_FETCH_GRAPHQL.setEndpoint(await commerceEndpointWithQueryParams());
   CS_FETCH_GRAPHQL.setFetchGraphQlHeaders((prev) => ({ ...prev, ...getHeaders('cs') }));
+
+  // Set Fetch GraphQL (Connector Mesh)
+  CONNECTOR_FETCH_GRAPHQL.setEndpoint(getConfigValue('commerce-connector-endpoint'));
 
   return initializeDropins();
 }

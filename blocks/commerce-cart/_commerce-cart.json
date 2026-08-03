@@ -24,26 +24,6 @@
       },
       {
         "component": "text",
-        "name": "hide-attributes",
-        "label": "Hide Attributes"
-      },
-      {
-        "component": "boolean",
-        "name": "enable-item-quantity-update",
-        "label": "Enable Item Quantity Update"
-      },
-      {
-        "component": "boolean",
-        "name": "enable-item-remove",
-        "label": "Enable Item Remove"
-      },
-      {
-        "component": "boolean",
-        "name": "enable-estimate-shipping",
-        "label": "Enable Estimate Shipping"
-      },
-      {
-        "component": "text",
         "name": "start-shopping-url",
         "label": "Start Shopping URL"
       },
@@ -51,16 +31,6 @@
         "component": "text",
         "name": "checkout-url",
         "label": "Checkout URL"
-      },
-      {
-        "component": "boolean",
-        "name": "enable-updating-product",
-        "label": "Enable Updating Product"
-      },
-      {
-        "component": "boolean",
-        "name": "undo-remove-item",
-        "label": "Undo Remove Item"
       }
     ]
   }],

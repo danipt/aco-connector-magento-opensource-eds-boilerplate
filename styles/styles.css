@@ -13,20 +13,22 @@
 /* stylelint-disable no-empty-source */
 :root, .dropin-design {
   /* Adobe Commerce Dropin design tokens */
-  --color-brand-300: #6d6d6d;
-  --color-brand-500: #454545;
-  --color-brand-600: #383838;
-  --color-brand-700: #2b2b2b;
+  --color-brand-300: #52a4dd;
+  --color-brand-500: #1979c3;
+  --color-brand-600: #135a90;
+  --color-brand-700: #0f4570;
   --color-neutral-50: #fff;
   --color-neutral-100: #fafafa;
-  --color-neutral-200: #f5f5f5;
+  --color-neutral-200: #f4f4f4;
   --color-neutral-300: #e8e8e8;
   --color-neutral-400: #d6d6d6;
   --color-neutral-500: #b8b8b8;
   --color-neutral-600: #8f8f8f;
-  --color-neutral-700: #666;
-  --color-neutral-800: #3d3d3d;
+  --color-neutral-700: #575757;
+  --color-neutral-800: #333;
   --color-neutral-900: #292929;
+  --color-header-bar: #6e716e;
+  --color-nav-bar: #f0f0f0;
   --color-positive-200: #eff5ef;
   --color-positive-500: #7fb078;
   --color-positive-800: #53824c;
@@ -88,7 +90,7 @@
   --spacing-huge: 120px;
   --spacing-xhuge: 144px;
   --spacing-xxhuge: 192px;
-  --type-base-font-family: adobe-clean, roboto, roboto-fallback, system-ui, sans-serif;
+  --type-base-font-family: "Open Sans", "Helvetica Neue", helvetica, arial, sans-serif;
   --type-display-1-font: normal normal 300 6rem/7.2rem var(--type-base-font-family);
   --type-display-1-letter-spacing: 0.04em;
   --type-display-2-font: normal normal 300 4.8rem/5.6rem var(--type-base-font-family);

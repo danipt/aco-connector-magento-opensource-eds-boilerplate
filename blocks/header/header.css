@@ -37,6 +37,10 @@ header nav[aria-expanded='true'] {
   min-height: 100dvh;
 }
 
+header:has(.header-utility-bar) {
+  height: auto;
+}
+
 @media (min-width: 900px) {
   header .nav-wrapper {
     position: relative;
@@ -44,9 +48,26 @@ header nav[aria-expanded='true'] {
 
   header nav {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
+    align-items: center;
+    height: auto;
     gap: 0 32px;
     max-width: 1264px;
+    padding: 0 32px;
+  }
+
+  header nav .nav-brand,
+  header nav .nav-tools {
+    flex: 0 0 auto;
+    height: var(--nav-height);
+  }
+
+  header nav .nav-sections {
+    order: 3;
+    flex: 1 1 100%;
+    background-color: var(--color-nav-bar);
+    margin: 0 -32px;
     padding: 0 32px;
   }
 
@@ -143,6 +164,41 @@ header nav[aria-expanded='true'] .nav-hamburger-icon::after {
   }
 }
 
+/* utility bar */
+header .header-utility-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-small);
+  background-color: var(--color-header-bar);
+  color: var(--color-neutral-50);
+  font: var(--type-details-caption-1-font);
+  letter-spacing: var(--type-details-caption-1-letter-spacing);
+  padding: var(--spacing-xsmall) var(--spacing-small);
+}
+
+header .header-utility-bar__links {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xxsmall);
+  white-space: nowrap;
+}
+
+header .header-utility-bar__currency {
+  margin-inline-start: var(--spacing-small);
+}
+
+header .header-utility-bar a {
+  color: var(--color-neutral-50);
+  font: inherit;
+}
+
+@media (max-width: 899px) {
+  header .header-utility-bar__message {
+    display: none;
+  }
+}
+
 /* brand */
 header nav .nav-brand {
   min-width: 128px;
@@ -152,8 +208,10 @@ header nav .nav-brand a {
   grid-area: brand;
   flex-basis: 128px;
   font: var(--type-headline-1-font);
+  font-size: 2rem;
   letter-spacing: var(--type-headline-1-letter-spacing);
   font-weight: bold;
+  white-space: nowrap;
 }
 
 li.nav-drop img {
@@ -193,9 +251,28 @@ header nav .nav-sections ul>li,
 header nav .nav-sections ul>li>a {
   font: var(--type-body-2-strong-font);
   letter-spacing: var(--type-body-2-strong-letter-spacing);
+  color: var(--color-neutral-700);
+}
+
+@media (min-width: 900px) {
+  header nav .nav-sections .default-content-wrapper>ul>li {
+    display: flex;
+    align-items: center;
+    height: 46px;
+  }
+}
+
+header .header-utility-bar a:hover {
+  color: var(--color-neutral-50);
+  text-decoration: underline;
 }
 
 header nav .nav-brand a:hover {
+  text-decoration: none;
+}
+
+header nav .nav-sections ul>li>a:hover {
+  color: var(--color-brand-500);
   text-decoration: none;
 }
 

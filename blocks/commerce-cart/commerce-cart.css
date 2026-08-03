@@ -11,38 +11,6 @@
   display: none;
 }
 
-.cart__wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: var(--grid-4-gutters);
-}
-
-.cart__wrapper[hidden],
-.cart__empty-cart[hidden] {
-  display: none;
-}
-
-.cart__gift-options{
-  margin-top: var(--spacing-medium);
-}
-
-.dropin-cart-item__footer {
-  margin-top: var(--spacing-xsmall);
-  gap: var(--spacing-xsmall);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.cart-item-edit-link .dropin-button,
-.cart__action--wishlist-toggle .dropin-button {
-  padding: 0;
-  font: var(--type-body-1-strong-font);
-  letter-spacing: var(--type-body-1-strong-letter-spacing);
-  font-weight: 600;
-  display: inline-flex;
-}
-
 .cart__notification .dropin-in-line-alert__content {
   display: flex;
   align-items: center;
@@ -58,8 +26,73 @@
   justify-content: center;
 }
 
-.dropin-cart-item__quantity {
-    width: fit-content;
+.cart__wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--grid-4-gutters);
+}
+
+.cart__wrapper[hidden],
+.cart__empty-cart[hidden] {
+  display: none;
+}
+
+.cart__heading {
+  margin: 0 0 var(--spacing-medium);
+}
+
+.cart__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cart__table th,
+.cart__table td {
+  text-align: left;
+  padding: var(--spacing-xsmall) var(--spacing-xxsmall);
+  border-bottom: 1px solid var(--color-neutral-300);
+}
+
+.cart__table th {
+  font: var(--type-body-2-strong-font);
+  letter-spacing: var(--type-body-2-strong-letter-spacing);
+}
+
+.cart__order-summary {
+  background-color: var(--color-neutral-100);
+  padding: var(--spacing-medium);
+}
+
+.cart__order-summary h2 {
+  margin: 0 0 var(--spacing-small);
+}
+
+.cart__summary-row {
+  display: flex;
+  justify-content: space-between;
+  font: var(--type-body-1-strong-font);
+  letter-spacing: var(--type-body-1-strong-letter-spacing);
+  padding: var(--spacing-xsmall) 0;
+}
+
+.cart__checkout-button {
+  display: block;
+  text-align: center;
+  margin-top: var(--spacing-medium);
+}
+
+.cart__empty-cart {
+  text-align: center;
+  padding: var(--spacing-xlarge) 0;
+}
+
+.cart__empty-cart-heading {
+  margin: 0;
+}
+
+.cart__empty-cart-cta {
+  display: inline-block;
+  margin-top: var(--spacing-medium);
 }
 
 @media (min-width: 768px) {

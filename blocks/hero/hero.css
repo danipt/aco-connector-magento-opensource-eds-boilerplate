@@ -35,3 +35,32 @@
     padding: 40px 32px;
   }
 }
+
+/* homepage promo hero variant (no authored image yet) */
+.hero.yoga {
+  background: linear-gradient(135deg, var(--color-brand-700), var(--color-brand-300));
+  display: flex;
+  align-items: center;
+  min-height: 340px;
+}
+
+.hero.yoga > div {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.hero.yoga > div > div {
+  background-color: var(--color-neutral-50);
+  color: var(--color-neutral-800);
+  max-width: 360px;
+  padding: var(--spacing-medium);
+  box-shadow: var(--shape-shadow-2);
+}
+
+.hero.yoga h1 {
+  color: var(--color-neutral-800);
+  font: var(--type-headline-1-font);
+  letter-spacing: var(--type-headline-1-letter-spacing);
+  margin-top: 0;
+}

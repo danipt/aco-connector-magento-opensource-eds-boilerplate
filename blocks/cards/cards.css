@@ -29,3 +29,31 @@
   aspect-ratio: 4 / 3;
   object-fit: cover;
 }
+
+/* homepage promo grid variant (no authored images yet) */
+.cards.promo-grid > ul > li {
+  border: none;
+  color: var(--color-neutral-50);
+}
+
+.cards.promo-grid .cards-card-body {
+  margin: 0;
+  padding: var(--spacing-medium);
+  min-height: 180px;
+  box-sizing: border-box;
+}
+
+.cards.promo-grid .cards-card-body h3 {
+  margin-top: 0;
+  color: inherit;
+}
+
+.cards.promo-grid .cards-card-body a {
+  color: inherit;
+}
+
+.cards.promo-grid > ul > li:nth-child(1) { background-color: var(--color-brand-500); }
+.cards.promo-grid > ul > li:nth-child(2) { background-color: var(--color-warning-800); }
+.cards.promo-grid > ul > li:nth-child(3) { background-color: var(--color-neutral-700); }
+.cards.promo-grid > ul > li:nth-child(4) { background-color: var(--color-brand-700); }
+.cards.promo-grid > ul > li:nth-child(5) { background-color: var(--color-positive-800); }

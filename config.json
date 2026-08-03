@@ -2,6 +2,7 @@
   "public": {
     "default": {
       "commerce-endpoint": "https://eu1.api.commerce.adobe.com/GTrjmqHjaPNCGujUzQWdb7/graphql",
+      "commerce-connector-endpoint": "https://edge-sandbox-graph.adobe.io/api/e40a8973-4e88-45a6-85b8-84cf288c12ce/graphql",
       "adobe-commerce-optimizer": true,
       "headers": {
         "cs": {
