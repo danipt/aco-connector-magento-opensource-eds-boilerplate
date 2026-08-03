@@ -36,9 +36,9 @@
   }
 }
 
-/* homepage promo hero variant (no authored image yet) */
+/* homepage promo hero variant */
 .hero.yoga {
-  background: linear-gradient(135deg, var(--color-brand-700), var(--color-brand-300));
+  background: url('../../images/home/hero-yoga.jpg') center / cover no-repeat;
   display: flex;
   align-items: center;
   min-height: 340px;

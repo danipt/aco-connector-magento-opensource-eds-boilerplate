@@ -30,16 +30,32 @@
   object-fit: cover;
 }
 
-/* homepage promo grid variant (no authored images yet) */
+/* homepage promo grid variant */
 .cards.promo-grid > ul > li {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  min-height: 340px;
   border: none;
   color: var(--color-neutral-50);
 }
 
+.cards.promo-grid > ul > li::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgb(0 0 0 / 55%), rgb(0 0 0 / 0%) 60%);
+}
+
+.cards.promo-grid .cards-card-image {
+  display: none;
+}
+
 .cards.promo-grid .cards-card-body {
+  position: absolute;
+  inset: auto 0 0;
   margin: 0;
   padding: var(--spacing-medium);
-  min-height: 180px;
   box-sizing: border-box;
 }
 
@@ -52,8 +68,8 @@
   color: inherit;
 }
 
-.cards.promo-grid > ul > li:nth-child(1) { background-color: var(--color-brand-500); }
-.cards.promo-grid > ul > li:nth-child(2) { background-color: var(--color-warning-800); }
-.cards.promo-grid > ul > li:nth-child(3) { background-color: var(--color-neutral-700); }
-.cards.promo-grid > ul > li:nth-child(4) { background-color: var(--color-brand-700); }
-.cards.promo-grid > ul > li:nth-child(5) { background-color: var(--color-positive-800); }
+.cards.promo-grid > ul > li:nth-child(1) { background-image: url('../../images/home/promo-pants.jpg'); }
+.cards.promo-grid > ul > li:nth-child(2) { background-image: url('../../images/home/promo-tshirts.png'); }
+.cards.promo-grid > ul > li:nth-child(3) { background-image: url('../../images/home/promo-erin.jpg'); }
+.cards.promo-grid > ul > li:nth-child(4) { background-image: url('../../images/home/promo-performance.jpg'); }
+.cards.promo-grid > ul > li:nth-child(5) { background-image: url('../../images/home/promo-eco.jpg'); }

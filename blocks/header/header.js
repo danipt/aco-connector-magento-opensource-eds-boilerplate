@@ -201,7 +201,7 @@ export default async function decorate(block) {
 
   const navBrand = document.createElement('div');
   navBrand.className = 'nav-brand';
-  navBrand.innerHTML = `<a href="${rootLink('/')}">AEM Commerce</a>`;
+  navBrand.innerHTML = `<a href="${rootLink('/')}"><img src="/images/home/logo.svg" alt="Store logo" width="148" height="43"></a>`;
 
   const navSections = document.createElement('div');
   navSections.className = 'nav-sections';

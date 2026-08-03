@@ -207,11 +207,9 @@ header nav .nav-brand {
 header nav .nav-brand a {
   grid-area: brand;
   flex-basis: 128px;
-  font: var(--type-headline-1-font);
-  font-size: 2rem;
-  letter-spacing: var(--type-headline-1-letter-spacing);
-  font-weight: bold;
-  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  height: 100%;
 }
 
 li.nav-drop img {
