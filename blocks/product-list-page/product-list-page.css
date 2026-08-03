@@ -123,6 +123,11 @@
 }
 
 /* homepage "hot sellers" variant: curated grid, no search chrome */
+.block.product-list-page.hot-sellers .search__wrapper {
+    grid-template-areas: "product-list";
+    grid-template-columns: 1fr;
+}
+
 .block.product-list-page.hot-sellers .search__result-info,
 .block.product-list-page.hot-sellers .search__view-facets,
 .block.product-list-page.hot-sellers .search__facets,
