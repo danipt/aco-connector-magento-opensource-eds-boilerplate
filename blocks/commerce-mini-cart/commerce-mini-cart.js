@@ -1,223 +1,129 @@
-import { render as provider } from '@dropins/storefront-cart/render.js';
-import MiniCart from '@dropins/storefront-cart/containers/MiniCart.js';
 import { events } from '@dropins/tools/event-bus.js';
-import { tryRenderAemAssetsImage } from '@dropins/tools/lib/aem/assets.js';
+import { h } from '@dropins/tools/preact.js';
 import {
   InLineAlert,
   Icon,
   provider as UI,
-  Button,
 } from '@dropins/tools/components.js';
-import { h } from '@dropins/tools/preact.js';
-
-import createModal from '../modal/modal.js';
-import createMiniPDP from '../../scripts/components/commerce-mini-pdp/commerce-mini-pdp.js';
-
-// Initializers
-import '../../scripts/initializers/cart.js';
 
 import { readBlockConfig } from '../../scripts/aem.js';
-import { fetchPlaceholders, rootLink, getProductLink } from '../../scripts/commerce.js';
+import { fetchPlaceholders, rootLink } from '../../scripts/commerce.js';
+import { refreshCart, formatPrice } from '../../scripts/connector-cart.js';
+
+/**
+ * The connector cart only carries sku/name/qty/price/rowTotal, so this
+ * mini-cart is rendered directly from that data instead of through
+ * @dropins/storefront-cart's MiniCart container, which tracks its own
+ * cart id (a cookie disconnected from the connector's cart) and expects
+ * the full native Magento Cart schema (images, options, quantity updates,
+ * item removal, coupons, etc).
+ */
 
 export default async function decorate(block) {
   const {
     'start-shopping-url': startShoppingURL = '',
     'cart-url': cartURL = '',
     'checkout-url': checkoutURL = '',
-    'enable-updating-product': enableUpdatingProduct = 'false',
-    'undo-remove-item': undo = 'false',
   } = readBlockConfig(block);
 
-  // Get translations for custom messages
   const placeholders = await fetchPlaceholders();
 
-  const MESSAGES = {
-    ADDED: placeholders?.Global?.MiniCartAddedMessage,
-    UPDATED: placeholders?.Global?.MiniCartUpdatedMessage,
-  };
+  let currentNotification = null;
 
-  // Modal state
-  let currentModal = null;
-  let currentCartNotification = null;
+  const fragment = document.createRange().createContextualFragment(`
+    <div class="mini-cart__notification"></div>
+    <div class="mini-cart__added-message"></div>
+    <div class="mini-cart__body" hidden>
+      <ul class="mini-cart__list"></ul>
+      <div class="mini-cart__total">
+        <span>${placeholders?.Cart?.PriceSummary?.total?.label ?? 'Total'}</span>
+        <span class="mini-cart__total-value"></span>
+      </div>
+      <a class="mini-cart__cart-link button" href="${cartURL ? rootLink(cartURL) : '#'}">
+        ${placeholders?.Global?.ViewCart ?? 'View Cart'}
+      </a>
+      <a class="mini-cart__checkout-button button" href="${checkoutURL ? rootLink(checkoutURL) : '#'}">
+        ${placeholders?.Cart?.PriceSummary?.checkout ?? 'Checkout'}
+      </a>
+    </div>
+    <div class="mini-cart__empty" hidden>
+      <p class="mini-cart__empty-heading">${placeholders?.Cart?.EmptyCart?.heading ?? 'Your cart is empty'}</p>
+      <a class="mini-cart__empty-cta button" href="${startShoppingURL ? rootLink(startShoppingURL) : rootLink('/')}">
+        ${placeholders?.Cart?.EmptyCart?.cta ?? 'Start shopping'}
+      </a>
+    </div>
+  `);
 
-  // Create a container for the update message
-  const updateMessage = document.createElement('div');
-  updateMessage.className = 'commerce-mini-cart__update-message';
+  const $notification = fragment.querySelector('.mini-cart__notification');
+  const $addedMessage = fragment.querySelector('.mini-cart__added-message');
+  const $body = fragment.querySelector('.mini-cart__body');
+  const $list = fragment.querySelector('.mini-cart__list');
+  const $empty = fragment.querySelector('.mini-cart__empty');
+  const $totalValue = fragment.querySelector('.mini-cart__total-value');
 
-  // Create shadow wrapper
-  const shadowWrapper = document.createElement('div');
-  shadowWrapper.className = 'commerce-mini-cart__message-wrapper';
-  shadowWrapper.appendChild(updateMessage);
+  block.innerHTML = '';
+  block.appendChild(fragment);
 
-  const showMessage = (message) => {
-    updateMessage.textContent = message;
-    updateMessage.classList.add('commerce-mini-cart__update-message--visible');
-    shadowWrapper.classList.add('commerce-mini-cart__message-wrapper--visible');
-    setTimeout(() => {
-      updateMessage.classList.remove(
-        'commerce-mini-cart__update-message--visible',
-      );
-      shadowWrapper.classList.remove(
-        'commerce-mini-cart__message-wrapper--visible',
-      );
-    }, 3000);
-  };
+  function renderCart(cart) {
+    const items = cart?.items ?? [];
+    const isEmpty = items.length === 0;
 
-  // Handle Edit Button Click
-  async function handleEditButtonClick(cartItem) {
-    try {
-      // Create mini PDP content
-      const miniPDPContent = await createMiniPDP(
-        cartItem,
-        async (_updateData) => {
-          const productName = cartItem.name
-            || cartItem.product?.name
-            || placeholders?.Global?.CartUpdatedProductName;
-          const message = placeholders?.Global?.CartUpdatedProductMessage?.replace(
-            '{product}',
-            productName,
-          );
+    $body.hidden = isEmpty;
+    $empty.hidden = !isEmpty;
 
-          // Show message in the main cart page
-          const cartNotification = document.querySelector(
-            '.cart__notification',
-          );
-          if (cartNotification) {
-            // Clear any existing cart notifications
-            currentCartNotification?.remove();
+    if (isEmpty) return;
 
-            currentCartNotification = await UI.render(InLineAlert, {
-              heading: message,
-              type: 'success',
-              variant: 'primary',
-              icon: h(Icon, { source: 'CheckWithCircle' }),
-              'aria-live': 'assertive',
-              role: 'alert',
-              onDismiss: () => {
-                currentCartNotification?.remove();
-              },
-            })(cartNotification);
+    $list.innerHTML = '';
+    items.forEach((item) => {
+      const row = document.createElement('li');
+      row.className = 'mini-cart__item';
+      row.innerHTML = `
+        <span class="mini-cart__item-name">${item.name ?? item.sku}</span>
+        <span class="mini-cart__item-qty">${item.qty}</span>
+        <span class="mini-cart__item-price">${formatPrice(item.rowTotal, cart.currency)}</span>
+      `;
+      $list.appendChild(row);
+    });
 
-            // Auto-dismiss after 5 seconds
-            setTimeout(() => {
-              currentCartNotification?.remove();
-            }, 5000);
-          }
-
-          // Also trigger message in the mini-cart
-          showMessage(message);
-        },
-        () => {
-          if (currentModal) {
-            currentModal.removeModal();
-            currentModal = null;
-          }
-        },
-      );
-
-      currentModal = await createModal([miniPDPContent]);
-
-      if (currentModal.block) {
-        currentModal.block.setAttribute('id', 'mini-pdp-modal');
-      }
-
-      currentModal.showModal();
-    } catch (error) {
-      console.error('Error opening mini PDP modal:', error);
-
-      // Show error message using mini-cart's message system
-      showMessage(
-        placeholders?.Global?.ProductLoadError,
-      );
-    }
+    $totalValue.textContent = formatPrice(cart.grandTotal, cart.currency);
   }
 
-  // Add event listeners for cart updates
-  events.on('cart/product/added', () => showMessage(MESSAGES.ADDED), {
-    eager: true,
-  });
-  events.on('cart/product/updated', () => showMessage(MESSAGES.UPDATED), {
-    eager: true,
-  });
+  function showAddedMessage() {
+    $addedMessage.textContent = placeholders?.Global?.MiniCartAddedMessage ?? 'Item added to cart';
+    $addedMessage.classList.add('mini-cart__added-message--visible');
+    setTimeout(() => {
+      $addedMessage.classList.remove('mini-cart__added-message--visible');
+    }, 3000);
+  }
 
-  // Prevent mini cart from closing when undo is enabled
-  if (undo === 'true') {
-    // Add event listener to prevent event bubbling from remove buttons
-    block.addEventListener('click', (e) => {
-      // Check if click is on a remove button or within an undo-related element
-      const isRemoveButton = e.target.closest('[class*="remove"]')
-        || e.target.closest('[data-testid*="remove"]')
-        || e.target.closest('[class*="undo"]')
-        || e.target.closest('[data-testid*="undo"]');
-
-      if (isRemoveButton) {
-        // Stop the event from bubbling up to document level
-        e.stopPropagation();
-      }
+  function showError(message) {
+    currentNotification?.remove();
+    UI.render(InLineAlert, {
+      heading: message,
+      type: 'error',
+      variant: 'primary',
+      icon: h(Icon, { source: 'AlertWithCircle' }),
+      'aria-live': 'assertive',
+      role: 'alert',
+      onDismiss: () => {
+        currentNotification?.remove();
+      },
+    })($notification).then((rendered) => {
+      currentNotification = rendered;
     });
   }
 
-  block.innerHTML = '';
-
-  // Render MiniCart
-  const createProductLink = (product) => getProductLink(product.url.urlKey, product.topLevelSku);
-  await provider.render(MiniCart, {
-    routeEmptyCartCTA: startShoppingURL ? () => rootLink(startShoppingURL) : undefined,
-    routeCart: cartURL ? () => rootLink(cartURL) : undefined,
-    routeCheckout: checkoutURL ? () => rootLink(checkoutURL) : undefined,
-    routeProduct: createProductLink,
-    undo: undo === 'true',
-
-    slots: {
-      Thumbnail: (ctx) => {
-        const { item, defaultImageProps } = ctx;
-        const anchorWrapper = document.createElement('a');
-        anchorWrapper.href = createProductLink(item);
-
-        tryRenderAemAssetsImage(ctx, {
-          alias: item.sku,
-          imageProps: defaultImageProps,
-          wrapper: anchorWrapper,
-
-          params: {
-            width: defaultImageProps.width,
-            height: defaultImageProps.height,
-          },
-        });
-
-        if (item?.itemType === 'ConfigurableCartItem' && enableUpdatingProduct === 'true') {
-          const editLinkContainer = document.createElement('div');
-          editLinkContainer.className = 'cart-item-edit-container';
-
-          const editLink = document.createElement('div');
-          editLink.className = 'cart-item-edit-link';
-
-          UI.render(Button, {
-            children: placeholders?.Global?.CartEditButton,
-            // Every cart item renders its own Edit button, so the accessible
-            // name must include the product name to distinguish them.
-            'aria-label': `${placeholders?.Global?.CartEditButton} ${item.name}`,
-            variant: 'tertiary',
-            size: 'medium',
-            icon: h(Icon, { source: 'Edit' }),
-            onClick: () => handleEditButtonClick(item),
-          })(editLink);
-
-          editLinkContainer.appendChild(editLink);
-          ctx.appendChild(editLinkContainer);
-        }
-      },
-    },
-  })(block);
-
-  // Find the products container and add the message div at the top
-  const productsContainer = block.querySelector('.cart-mini-cart__products');
-  if (productsContainer) {
-    productsContainer.insertBefore(shadowWrapper, productsContainer.firstChild);
-  } else {
-    console.info('Products container not found, appending message to block');
-    block.appendChild(shadowWrapper);
+  try {
+    const cart = await refreshCart();
+    renderCart(cart);
+  } catch (error) {
+    console.error('Error loading cart from connector mesh:', error);
+    showError(placeholders?.Global?.ProductLoadError ?? 'Failed to load your cart');
+    renderCart(null);
   }
+
+  events.on('connector-cart/data', renderCart, { eager: true });
+  events.on('cart/product/added', showAddedMessage, { eager: true });
 
   return block;
 }

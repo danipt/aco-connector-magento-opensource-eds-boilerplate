@@ -35,7 +35,6 @@ import {
 
 // Initializers
 import { IMAGES_SIZES } from '../../scripts/initializers/pdp.js';
-import '../../scripts/initializers/cart.js';
 import '../../scripts/initializers/wishlist.js';
 
 /**

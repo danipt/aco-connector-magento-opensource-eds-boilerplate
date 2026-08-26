@@ -6,9 +6,6 @@ import { getConfigValue } from '@dropins/tools/lib/aem/configs.js';
 import { Button, Icon, provider as UI } from '@dropins/tools/components.js';
 import { tryRenderAemAssetsImage } from '@dropins/tools/lib/aem/assets.js';
 
-// Cart Dropin
-import * as cartApi from '@dropins/storefront-cart/api.js';
-
 // Recommendations Dropin
 import ProductList from '@dropins/storefront-recommendations/containers/ProductList.js';
 import { render as provider } from '@dropins/storefront-recommendations/render.js';
@@ -236,9 +233,9 @@ export default async function decorate(block) {
                   icon: Icon({ source: 'Cart' }),
                   onClick: ctx.item.inStock
                     ? (event) => {
-                      cartApi.addProductsToCart([
-                        { sku: ctx.item.sku, quantity: 1 },
-                      ]);
+                      import('../../scripts/connector-cart.js').then(
+                        ({ addToCart: addToConnectorCart }) => addToConnectorCart(ctx.item.sku, 1),
+                      );
                       // Prevent the click event from bubbling up to the parent span
                       // to avoid triggering the recs-item-click event
                       event.stopPropagation();

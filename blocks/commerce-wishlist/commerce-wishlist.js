@@ -1,4 +1,3 @@
-import * as cartApi from '@dropins/storefront-cart/api.js';
 import * as pdpApi from '@dropins/storefront-pdp/api.js';
 import { render as wishlistRenderer } from '@dropins/storefront-wishlist/render.js';
 import { render as authRenderer } from '@dropins/storefront-auth/render.js';
@@ -10,7 +9,17 @@ import { CS_FETCH_GRAPHQL, rootLink, getProductLink } from '../../scripts/commer
 import { readBlockConfig } from '../../scripts/aem.js';
 
 import '../../scripts/initializers/wishlist.js';
-import '../../scripts/initializers/cart.js';
+
+/**
+ * Moves wishlist items to the connector cart. The Wishlist container calls
+ * this with the native dropin `addProductsToCart` shape (an array of
+ * {sku, quantity}), so it's adapted here to the connector's single-item
+ * `addToCart(sku, qty)` instead of routing through @dropins/storefront-cart.
+ */
+async function moveProdToCart(products) {
+  const { addToCart } = await import('../../scripts/connector-cart.js');
+  await Promise.all(products.map(({ sku, quantity }) => addToCart(sku, quantity)));
+}
 
 // Initialize
 
@@ -75,7 +84,7 @@ export default async function decorate(block) {
 
   await wishlistRenderer.render(Wishlist, {
     routeEmptyWishlistCTA: startShoppingURL ? () => rootLink(startShoppingURL) : undefined,
-    moveProdToCart: cartApi.addProductsToCart,
+    moveProdToCart,
     routeProdDetailPage: (product) => getProductLink(product.urlKey, product.sku),
     onLoginClick: showAuthModal,
     getProductData: pdpApi.getProductData,

@@ -10,7 +10,7 @@ import { WishlistAlert } from '@dropins/storefront-wishlist/containers/WishlistA
 
 import { readBlockConfig } from '../../scripts/aem.js';
 import { fetchPlaceholders, rootLink } from '../../scripts/commerce.js';
-import { refreshCart } from '../../scripts/connector-cart.js';
+import { refreshCart, formatPrice } from '../../scripts/connector-cart.js';
 
 /**
  * The connector cart only carries sku/name/qty/price/rowTotal, so this
@@ -18,13 +18,6 @@ import { refreshCart } from '../../scripts/connector-cart.js';
  * @dropins/storefront-cart's containers, which expect the full native
  * Magento Cart schema (images, options, coupons, shipping, etc).
  */
-
-function formatPrice(amount, currency) {
-  return new Intl.NumberFormat(document.documentElement.lang || 'en-US', {
-    style: 'currency',
-    currency: currency || 'USD',
-  }).format(amount ?? 0);
-}
 
 export default async function decorate(block) {
   const {

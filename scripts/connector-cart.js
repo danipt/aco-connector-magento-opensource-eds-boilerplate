@@ -153,5 +153,20 @@ export async function addToCart(sku, qty = 1) {
     throw new Error(result?.error || errors?.[0]?.message || 'Unable to add item to cart');
   }
 
-  return refreshCart();
+  const cart = await refreshCart();
+  events.emit('cart/product/added');
+  return cart;
+}
+
+/**
+ * Formats a price amount as a localized currency string.
+ * @param {number} amount - The price amount
+ * @param {string} [currency] - The ISO currency code
+ * @returns {string} The formatted price
+ */
+export function formatPrice(amount, currency) {
+  return new Intl.NumberFormat(document.documentElement.lang || 'en-US', {
+    style: 'currency',
+    currency: currency || 'USD',
+  }).format(amount ?? 0);
 }

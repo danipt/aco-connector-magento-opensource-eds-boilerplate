@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Commerce Mini Cart block provides a compact cart interface with product management, notifications, and modal integration. It renders a mini cart with configurable options for product editing, undo functionality, and navigation URLs with real-time cart update notifications.
+The Commerce Mini Cart block renders a read-only cart summary (line items and order total) in the header's cart dropdown, sourced from the ACO connector's mesh GraphQL fields (`connectorGetCart`) rather than the native Magento Cart GraphQL schema. Because that connector schema only carries `sku`/`name`/`qty`/`price`/`rowTotal`, this block does not use `@dropins/storefront-cart`'s `MiniCart` container and does not support product images, configurable options, quantity updates, item removal, coupons, gift cards, or shipping estimation. See also the [Commerce Cart block](../commerce-cart/README.md), which renders the full cart page from the same connector data.
 
 ## Integration
 
@@ -13,8 +13,6 @@ The Commerce Mini Cart block provides a compact cart interface with product mana
 | `start-shopping-url` | string | `''` | URL for "Start Shopping" button when cart is empty | No | Sets destination for empty cart CTA |
 | `cart-url` | string | `''` | URL for cart page navigation | No | Sets destination for cart navigation |
 | `checkout-url` | string | `''` | URL for checkout navigation | No | Sets destination for checkout action |
-| `enable-updating-product` | string | `'false'` | Enables product editing via mini-PDP modal | No | Shows/hides edit buttons for configurable products |
-| `undo-remove-item` | string | `'false'` | Enables undo functionality when removing items | No | Shows/hides undo option after item removal |
 
 <!-- ### URL Parameters
 
@@ -28,34 +26,23 @@ No localStorage keys are used by this block. -->
 
 #### Event Listeners
 
-- `events.on('cart/product/added', callback)` - Listens for product addition events to show success message
-- `events.on('cart/product/updated', callback)` - Listens for product update events to show update message
-
-<!-- #### Event Emitters
-
-No events are emitted by this block. -->
+- `events.on('connector-cart/data', callback)` - Listens for connector cart updates (e.g. after an add-to-cart elsewhere on the page) and re-renders the summary
+- `events.on('cart/product/added', callback)` - Listens for successful add-to-cart events to show a transient "added to cart" message
 
 ## Behavior Patterns
 
 ### Page Context Detection
 
-- **Empty Cart**: When cart has no items, shows empty cart message with start shopping CTA
-- **Populated Cart**: When cart has items, shows mini cart with product list and actions
-- **Configurable Products**: When configurable products are present and editing is enabled, shows edit buttons
-- **Undo Mode**: When undo is enabled, prevents mini cart from closing during remove operations
+- **Empty Cart**: When the connector cart has no items, shows empty cart message with start shopping CTA
+- **Populated Cart**: When cart has items, shows a compact line-item list (name, qty, subtotal) and the order total
 
 ### User Interaction Flows
 
-1. **Cart Display**: Block renders mini cart with product thumbnails and basic information
-2. **Product Editing**: Clicking edit button opens mini-PDP modal for configurable product updates
-3. **Cart Updates**: Real-time notifications show when products are added or updated
-4. **Navigation**: Users can navigate to cart page, checkout, or start shopping
-5. **Undo Operations**: When enabled, users can undo item removal operations
+1. **Cart Display**: On decoration, the block fetches the current cart from the connector mesh (`scripts/connector-cart.js`) and renders it
+2. **Live Updates**: Adding a product anywhere on the site (PDP, PLP, recommendations) refreshes this summary via the `connector-cart/data` event
+3. **Navigation**: Users can navigate to the full cart page or checkout via the configured URLs
+4. **Empty Cart Handling**: When cart is empty, shows start shopping CTA
 
 ### Error Handling
 
-- **Mini-PDP Errors**: If mini-PDP modal fails to open, shows error message via notification system
-- **Cart Data Errors**: If cart data is invalid or missing, the MiniCart container handles fallback display
-- **Configuration Errors**: If `readBlockConfig()` fails, uses default configuration values
-- **Render Errors**: If container rendering fails, the block content remains empty
-- **Fallback Behavior**: Always falls back to default configuration values for missing or invalid settings
+- **Cart Data Errors**: If the connector mesh request fails, shows an inline error notification and treats the cart as empty

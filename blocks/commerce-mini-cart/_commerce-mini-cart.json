@@ -26,16 +26,6 @@
         "component": "text",
         "name": "checkout-url",
         "label": "Checkout URL"
-      },
-      {
-        "component": "boolean",
-        "name": "enable-updating-product",
-        "label": "Enable Updating Product"
-      },
-      {
-        "component": "boolean",
-        "name": "undo-remove-item",
-        "label": "Undo Remove Item"
       }
     ]
   }],

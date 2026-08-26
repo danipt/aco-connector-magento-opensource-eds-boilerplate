@@ -9,8 +9,6 @@ import { search } from '@dropins/storefront-product-discovery/api.js';
 // Wishlist Dropin
 import { WishlistToggle } from '@dropins/storefront-wishlist/containers/WishlistToggle.js';
 import { render as wishlistRender } from '@dropins/storefront-wishlist/render.js';
-// Cart Dropin
-import * as cartApi from '@dropins/storefront-cart/api.js';
 import { tryRenderAemAssetsImage } from '@dropins/tools/lib/aem/assets.js';
 // Event Bus
 import { events } from '@dropins/tools/event-bus.js';
@@ -121,7 +119,10 @@ export default async function decorate(block) {
       'aria-label': addToCartLabel,
       children: labels.Global?.AddProductToCart,
       icon: Icon({ source: 'Cart' }),
-      onClick: () => cartApi.addProductsToCart([{ sku: product.sku, quantity: 1 }]),
+      onClick: async () => {
+        const { addToCart } = await import('../../scripts/connector-cart.js');
+        await addToCart(product.sku, 1);
+      },
       variant: 'primary',
       disabled: !product.inStock,
     })(button);
